@@ -85,12 +85,10 @@ return {
 				})
 			end,
 			["lua_ls"] = function()
-				-- Configure Lua server with special settings
 				lspconfig["lua_ls"].setup({
 					capabilities = capabilities,
 					settings = {
 						Lua = {
-							-- Make the language server recognize "vim" global
 							diagnostics = {
 								globals = { "vim" },
 							},

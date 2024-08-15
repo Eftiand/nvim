@@ -28,6 +28,7 @@ return {
 				"gitignore",
 				"query",
 				"c_sharp",
+				"python",
 			},
 			incremental_selection = {
 				enable = true,
