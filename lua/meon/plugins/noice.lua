@@ -2,7 +2,12 @@ return {
 	"folke/noice.nvim",
 	event = "VeryLazy",
 	opts = {
-		-- add any options here
+		-- Insert the noice setup configuration here
+		routes = {
+			{ filter = { event = "notify", find = "ping" }, opts = { skip = true } },
+			{ filter = { event = "notify", find = "pong" }, opts = { skip = true } },
+			{ filter = { find = "alternate" }, opts = { skip = true } },
+		},
 	},
 	dependencies = {
 		-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
