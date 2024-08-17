@@ -99,6 +99,21 @@ return {
 					},
 				})
 			end,
+			["csharp_ls"] = function()
+				lspconfig["csharp_ls"].setup({
+					capabilities = capabilities,
+					settings = {
+						Lua = {
+							diagnostics = {
+								globals = { "vim" },
+							},
+							completion = {
+								callSnippet = "Replace",
+							},
+						},
+					},
+				})
+			end,
 		})
 	end,
 }

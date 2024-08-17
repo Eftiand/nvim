@@ -8,6 +8,7 @@ return {
 			sources = {
 				null_ls.builtins.formatting.stylua,
 				null_ls.builtins.formatting.gdformat,
+				null_ls.builtins.formatting.csharpier,
 			},
 		})
 	end,
