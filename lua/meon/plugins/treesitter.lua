@@ -29,6 +29,7 @@ return {
 				"query",
 				"c_sharp",
 				"python",
+				"json",
 			},
 			incremental_selection = {
 				enable = true,
