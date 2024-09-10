@@ -18,12 +18,12 @@ return {
 			hover = {
 				enabled = true, -- Keep LSP hover features if needed
 			},
+			message = {
+				enabled = false, -- Keep LSP signature help if needed
+			},
 			signature = {
 				enabled = true, -- Keep LSP signature help if needed
 			},
-		},
-		notify = {
-			enabled = true, -- Enable nvim-notify for notifications
 		},
 		routes = {
 			-- Suppress all types of LSP messages from csharp_ls
@@ -51,13 +51,4 @@ return {
 		"MunifTanjim/nui.nvim", -- Required dependency for Noice's UI enhancements
 		"rcarriga/nvim-notify", -- nvim-notify for enhanced notifications
 	},
-	config = function()
-		-- Set nvim-notify as the default notification handler
-		vim.notify = require("notify")
-
-		-- Configure nvim-notify with background colour
-		require("notify").setup({
-			background_colour = "#000000", -- Set to black as requested
-		})
-	end,
 }
