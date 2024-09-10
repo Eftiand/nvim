@@ -24,7 +24,7 @@ opt.signcolumn = "yes"
 
 opt.backspace = "indent,eol,start"
 
-opt.clipboard:append("unnamedplus")
+vim.opt.clipboard = "unnamedplus"
 
 opt.splitright = true
 opt.splitbelow = true
