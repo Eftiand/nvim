@@ -28,3 +28,9 @@ vim.opt.clipboard = "unnamedplus"
 
 opt.splitright = true
 opt.splitbelow = true
+
+-- Autosave on insert leave or when focus is lost
+vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost" }, {
+	pattern = "*",
+	command = "silent! write",
+})
