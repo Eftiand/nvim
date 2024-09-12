@@ -13,8 +13,8 @@ return {
 			vim.cmd([[
               augroup FloatermMappings
               autocmd!
-              autocmd! TermOpen term://*toggleterm#* tnoremap <buffer> <ESC> <C-\><C-n>
-              augroup END
+              autocmd! termopen term://*toggleterm#* tnoremap <buffer> <esc> <c-\><c-n>
+              augroup end
               ]])
 		end,
 	},
