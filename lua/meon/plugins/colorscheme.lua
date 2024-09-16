@@ -12,6 +12,14 @@ return {
 				green = "#89CA78",
 				cyan = "#58C1CF",
 				red = "#EF596F",
+
+				--red = "#D19A66",
+				--cyan = "#DE5D68",
+			},
+			highlights = {
+				["@variable.member"] = { fg = "$red" },
+				["@property"] = { fg = "$red" },
+				["@lsp.type.property"] = { fg = "$red" },
 			},
 		})
 		vim.cmd("colorscheme onedark")
