@@ -4,7 +4,7 @@ return {
 	config = function()
 		require("onedark").setup({
 			style = "warmer",
-			transparent = true,
+			-- transparent = true,
 			colors = {
 				bg0 = "#181A1F",
 				purple = "#D55FDE",
@@ -28,7 +28,6 @@ return {
 				["@lsp.type.parameter"] = { fg = "$dark_yellow" },
 				["@lsp.type.interface"] = { fg = "$orange" },
 				["@keyword.modifier.c_sharp"] = { fg = "$purple" },
-				["@keyword.type.c_sharp"] = { fg = "$purple" },
 				["@type.builtin"] = { fg = "$purple" },
 				["@constant.builtin"] = { fg = "$purple" },
 			},
