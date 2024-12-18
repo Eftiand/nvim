@@ -35,7 +35,7 @@ return {
 			"n",
 			"<leader>fa",
 			"<cmd>lua require'telescope.builtin'.find_files({ hidden = true, no_ignore = true, file_ignore_patterns = { '.git/' } })<cr>",
-			default_opts
+			{ desc = "Fuzzy find all files" }
 		)
 		keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Fuzzy find recent files" })
 		keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "Find string in cwd" })
