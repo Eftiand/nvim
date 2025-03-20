@@ -25,6 +25,9 @@ keymap.set("n", "<leader>tt", "<cmd>terminal<CR>", { desc = "Open terminal in ne
 keymap.set("n", "<leader>th", "<cmd>split | terminal<CR>", { desc = "Open terminal in horizontal split" })
 keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal in vertical split" })
 
+-- Exit terminal
+keymap.set("t", "<leader>tc", "<C-\\><C-n>", { desc = "Close floating terminal" })
+
 -- shell
 if vim.fn.has("win32") == 1 then
 	vim.opt.shell = "powershell"

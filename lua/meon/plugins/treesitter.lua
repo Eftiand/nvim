@@ -23,6 +23,9 @@ return {
 			-- ensure these language parsers are installed
 			ensure_installed = {
 				"lua",
+				"xml",
+				"html",
+				"css",
 				"vim",
 				"dockerfile",
 				"gitignore",
@@ -30,6 +33,12 @@ return {
 				"c_sharp",
 				"python",
 				"json",
+				"javascript",
+				"typescript",
+				"tsx",
+				"yaml",
+				"markdown",
+				"markdown_inline", -- needed for proper markdown support
 			},
 			incremental_selection = {
 				enable = true,

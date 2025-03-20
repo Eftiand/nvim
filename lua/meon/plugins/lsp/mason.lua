@@ -26,10 +26,17 @@ return {
 
 		mason_lspconfig.setup({
 			-- list of servers for mason to install
-			ensure_installed = {},
+			ensure_installed = {
+				"ts_ls", -- TypeScript/JavaScript
+				"cssls", -- CSS
+				"html", -- HTML
+			},
 		})
 		mason_tool_installer.setup({
 			ensure_installed = {
+				"eslint", -- JavaScript linter
+				"html", -- HTML
+				"jsonls", -- JSON
 				"prettier", -- prettier formatter
 				"stylua",
 				"csharp-language-server",

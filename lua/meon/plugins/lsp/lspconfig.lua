@@ -64,6 +64,16 @@ return {
 
 				opts.desc = "Restart LSP"
 				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
+
+				opts.desc = "Format with LSP or indentation"
+				keymap.set("n", "gg=G", function()
+					local formatters = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/formatting" })
+					if not vim.tbl_isempty(formatters) then
+						vim.lsp.buf.format()
+					else
+						vim.cmd("normal! gg=G")
+					end
+				end, opts)
 			end,
 		})
 
