@@ -22,6 +22,10 @@ return {
 					package_uninstalled = "✗",
 				},
 			},
+			registries = {
+				"github:mason-org/mason-registry",
+				"github:Crashdummyy/mason-registry",
+			},
 		})
 
 		mason_lspconfig.setup({
@@ -39,7 +43,6 @@ return {
 				"jsonls", -- JSON
 				"prettier", -- prettier formatter
 				"stylua",
-				"csharp-language-server",
 				"netcoredbg",
 			},
 		})

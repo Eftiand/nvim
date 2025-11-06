@@ -109,11 +109,15 @@ return {
 					},
 				})
 			end,
-			["csharp_ls"] = function()
-				lspconfig["csharp_ls"].setup({
-					capabilities = capabilities,
-				})
+		})
+
+		-- Add roslyn.nvim integration
+		require("roslyn").setup({
+			-- Example options, adjust as needed
+			on_attach = function(client, bufnr)
+				print("Roslyn LSP attached!")
 			end,
+			capabilities = capabilities,
 		})
 	end,
 }
