@@ -27,3 +27,15 @@ keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open termi
 
 -- Exit terminal
 keymap.set("t", "<leader>tc", "<C-\\><C-n>", { desc = "Close floating terminal" })
+
+-- Terminal window navigation (works in all terminal buffers)
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    local opts = { buffer = 0, silent = true }
+    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts)
+    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts)
+    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts)
+    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts)
+  end,
+})
