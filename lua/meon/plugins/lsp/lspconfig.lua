@@ -5,71 +5,74 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
 	},
 	config = function()
-		-- Import lspconfig plugin
-		local lspconfig = require("lspconfig")
-
-		-- Import mason-lspconfig plugin
-		local mason_lspconfig = require("mason-lspconfig")
-
-		-- Import cmp-nvim-lsp plugin
+		-- Import cmp-nvim-lsp plugin for enhanced capabilities
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
-		local keymap = vim.keymap -- for conciseness
+		-- Import mason-lspconfig plugin safely
+		local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
+		if not mason_lspconfig_ok then
+			vim.notify("mason-lspconfig not found", vim.log.levels.ERROR)
+			return
+		end
 
+		local keymap = vim.keymap
+
+		-- LSP keybindings (attached when LSP client connects to buffer)
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 			callback = function(ev)
-				-- Buffer local mappings.
-				-- See `:help vim.lsp.*` for documentation on any of the below functions
+				-- Buffer local mappings
 				local opts = { buffer = ev.buf, silent = true }
 
-				-- Set keybinds
+				-- LSP navigation and actions
 				opts.desc = "Show LSP references"
-				keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
+				keymap.set("n", "gR", "<cmd>Telescope lsp_references<cr>", opts)
 
-				opts.desc = "Go to definition"
-				keymap.set("n", "gD", vim.lsp.buf.definition, opts) -- go to declaration
+				opts.desc = "Go to declaration"
+				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 
 				opts.desc = "Show LSP definitions"
-				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts) -- show lsp definitions
+				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", opts)
 
 				opts.desc = "Show LSP implementations"
-				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts) -- show lsp implementations
+				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<cr>", opts)
 
 				opts.desc = "Show LSP type definitions"
-				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) -- show lsp type definitions
+				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<cr>", opts)
 
 				opts.desc = "See available code actions"
-				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts) -- see available code actions, in visual mode will apply to selection
+				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 
 				opts.desc = "Smart rename"
-				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts) -- smart rename
+				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
 				opts.desc = "Show buffer diagnostics"
-				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show diagnostics for file
+				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<cr>", opts)
 
 				opts.desc = "Show line diagnostics"
-				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
+				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
 
 				opts.desc = "Go to previous diagnostic"
-				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
+				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
 
 				opts.desc = "Go to next diagnostic"
-				keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
+				keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 
 				opts.desc = "Show documentation for what is under cursor"
-				keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
+				keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
 				opts.desc = "Restart LSP"
-				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
+				keymap.set("n", "<leader>rs", "<cmd>LspRestart<cr>", opts)
 
 				opts.desc = "Format with LSP or indentation"
 				keymap.set("n", "gg=G", function()
-					local formatters = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/formatting" })
-					if not vim.tbl_isempty(formatters) then
-						vim.lsp.buf.format()
+					local clients = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/formatting" })
+					if not vim.tbl_isempty(clients) then
+						vim.lsp.buf.format({ async = false })
 					else
 						vim.cmd("normal! gg=G")
 					end
@@ -77,47 +80,52 @@ return {
 			end,
 		})
 
-		-- Used to enable autocompletion (assign to every Lsp server config)
+		-- Enhanced LSP capabilities for autocompletion
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
-		-- Change the Diagnostic symbols in the sign column (gutter)
-		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+		-- Diagnostic symbols in the sign column (gutter)
+		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
 		for type, icon in pairs(signs) do
 			local hl = "DiagnosticSign" .. type
 			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 		end
 
-		mason_lspconfig.setup_handlers({
-			-- Default handler for installed servers
-			function(server_name)
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-				})
-			end,
-			["lua_ls"] = function()
-				lspconfig["lua_ls"].setup({
-					capabilities = capabilities,
-					settings = {
-						Lua = {
-							diagnostics = {
-								globals = { "vim" },
-							},
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
+		-- Get list of installed servers from Mason
+		local installed_servers = mason_lspconfig.get_installed_servers()
+
+		-- Configure lua_ls with custom settings
+		vim.lsp.config("lua_ls", {
+			capabilities = capabilities,
+			settings = {
+				Lua = {
+					diagnostics = {
+						globals = { "vim" },
 					},
-				})
-			end,
+					completion = {
+						callSnippet = "Replace",
+					},
+					workspace = {
+						checkThirdParty = false,
+					},
+					telemetry = {
+						enable = false,
+					},
+				},
+			},
 		})
 
-		-- Add roslyn.nvim integration
-		require("roslyn").setup({
-			-- Example options, adjust as needed
-			on_attach = function(client, bufnr)
-				print("Roslyn LSP attached!")
-			end,
-			capabilities = capabilities,
-		})
+		-- Configure all other servers with default capabilities
+		for _, server_name in ipairs(installed_servers) do
+			if server_name ~= "lua_ls" then
+				vim.lsp.config(server_name, {
+					capabilities = capabilities,
+				})
+			end
+		end
+
+		-- Enable all installed LSP servers using the modern vim.lsp.enable() API
+		for _, server_name in ipairs(installed_servers) do
+			vim.lsp.enable(server_name)
+		end
 	end,
 }

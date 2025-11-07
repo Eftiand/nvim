@@ -15,8 +15,6 @@ return {
 	keys = {
     { "<leader><Esc>", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude", mode = { "n", "v", "i", "t" } },
 		{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
-		{ "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
-		{ "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
 		{
 			"<C-i>",
 			"<cmd>ClaudeCodeTreeAdd<cr>",
