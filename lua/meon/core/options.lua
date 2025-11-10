@@ -35,6 +35,13 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost" }, {
 	command = "silent! write",
 })
 
+-- Auto-reload files when changed externally
+opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+	pattern = "*",
+	command = "checktime",
+})
+
 vim.api.nvim_create_user_command('Ofinder',
     function()
         local path = vim.api.nvim_buf_get_name(0)
