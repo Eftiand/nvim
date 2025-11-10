@@ -1,8 +1,8 @@
 return {
 	"coder/claudecode.nvim",
 	dependencies = { "folke/snacks.nvim" },
-	config = function()
-		require("claudecode").setup()
+	config = function(_, opts)
+		require("claudecode").setup(opts)
 
 		-- Custom function to send and focus
 		vim.keymap.set("v", "<leader>i", function()
@@ -31,7 +31,7 @@ return {
 			provider = "snacks",
 			snacks_win_opts = {
 				position = "float",
-				width = 0.6,
+				width = 0.3,
 				height = 0.6,
 				border = "double",
 				backdrop = 80,
