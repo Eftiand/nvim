@@ -4,7 +4,7 @@ return {
 	config = function()
 		require("onedark").setup({
 			style = "warmer",
-			-- transparent = true,
+			transparent = true,
 			colors = {
 				bg0 = "#181A1F",
 				purple = "#D55FDE",
