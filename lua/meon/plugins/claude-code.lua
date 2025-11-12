@@ -39,17 +39,6 @@ return {
 					winblend = 0,
 					winhighlight = "Normal:ClaudeCodeBackground,NormalFloat:ClaudeCodeBackground",
 				},
-				keys = {
-					claude_hide = {
-						"<Esc>",
-						function(self)
-							self:hide()
-						end,
-						mode = "t",
-						desc = "Hide",
-					},
-					claude_close = { "q", "close", mode = "n", desc = "Close" },
-				},
 			},
 		},
 	},
