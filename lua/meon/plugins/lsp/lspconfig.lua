@@ -30,19 +30,27 @@ return {
 
 				-- LSP navigation and actions
 				opts.desc = "Show LSP references"
-				keymap.set("n", "gR", "<cmd>Telescope lsp_references<cr>", opts)
+				keymap.set("n", "gR", function()
+					require("fzf-lua").lsp_references()
+				end, opts)
 
 				opts.desc = "Go to declaration"
 				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 
 				opts.desc = "Show LSP definitions"
-				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", opts)
+				keymap.set("n", "gd", function()
+					require("fzf-lua").lsp_definitions()
+				end, opts)
 
 				opts.desc = "Show LSP implementations"
-				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<cr>", opts)
+				keymap.set("n", "gi", function()
+					require("fzf-lua").lsp_implementations()
+				end, opts)
 
 				opts.desc = "Show LSP type definitions"
-				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<cr>", opts)
+				keymap.set("n", "gt", function()
+					require("fzf-lua").lsp_typedefs()
+				end, opts)
 
 				opts.desc = "See available code actions"
 				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
@@ -51,7 +59,9 @@ return {
 				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
 				opts.desc = "Show buffer diagnostics"
-				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<cr>", opts)
+				keymap.set("n", "<leader>D", function()
+					require("fzf-lua").diagnostics_document()
+				end, opts)
 
 				opts.desc = "Show line diagnostics"
 				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
