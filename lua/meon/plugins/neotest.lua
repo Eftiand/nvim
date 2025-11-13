@@ -20,7 +20,7 @@ return {
 
     local map = vim.keymap.set
 
-    map("n", "<leader>tn", "<Cmd>lua require('neotest').run.run()<CR>", { desc = "run nearest test" })
+    map("n", "<leader>tr", "<Cmd>lua require('neotest').run.run()<CR>", { desc = "run nearest test" })
     map("n", "<leader>tf", "<Cmd>lua require('neotest').run.run(vim.fn.expand('%'))<CR>", { desc = "run file tests" })
     map("n", "<leader>ts", "<Cmd>lua require('neotest').summary.toggle()<CR>", { desc = "toggle test summary" })
     map("n", "<leader>to", "<Cmd>lua require('neotest').output.open({ enter = true })<CR>", { desc = "open test output" })

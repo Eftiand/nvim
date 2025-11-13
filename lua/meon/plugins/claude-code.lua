@@ -30,8 +30,8 @@ return {
 		terminal = {
 			provider = "snacks",
 			snacks_win_opts = {
-				position = "float",
-				width = 0.5,
+				position = "left",
+				width = 0.25,
 				height = 0.6,
 				border = "double",
 				backdrop = 80,
