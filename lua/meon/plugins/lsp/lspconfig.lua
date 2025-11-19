@@ -69,7 +69,13 @@ return {
 				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 
 				opts.desc = "Smart rename"
-				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+				keymap.set("n", "<leader>rn", function()
+					vim.lsp.buf.rename()
+					-- Wait a bit for LSP to apply changes, then save all modified buffers
+					vim.defer_fn(function()
+						vim.cmd("silent! wall")
+					end, 100)
+				end, opts)
 
 				opts.desc = "Show buffer diagnostics"
 				keymap.set("n", "<leader>D", function()
