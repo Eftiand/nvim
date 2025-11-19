@@ -13,7 +13,7 @@ return {
 		end, { desc = "Send to Claude and focus" })
 	end,
 	keys = {
-		{ "<leader><Esc>", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude", mode = { "n", "v", "i", "t" } },
+		{ "<leader><Esc>", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude", mode = { "n", "v", "t" } },
 		{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
 		{
 			"<C-i>",

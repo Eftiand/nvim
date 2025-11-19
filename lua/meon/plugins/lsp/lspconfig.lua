@@ -28,6 +28,19 @@ return {
 				-- Buffer local mappings
 				local opts = { buffer = ev.buf, silent = true }
 
+				-- Register with which-key if available
+				local wk_ok, wk = pcall(require, "which-key")
+				if wk_ok then
+					wk.add({
+						{ "g", group = "goto", buffer = ev.buf },
+						{ "gR", desc = "Show LSP references", buffer = ev.buf },
+						{ "gD", desc = "Go to declaration", buffer = ev.buf },
+						{ "gd", desc = "Show LSP definitions", buffer = ev.buf },
+						{ "gi", desc = "Show LSP implementations", buffer = ev.buf },
+						{ "gt", desc = "Show LSP type definitions", buffer = ev.buf },
+					})
+				end
+
 				-- LSP navigation and actions
 				opts.desc = "Show LSP references"
 				keymap.set("n", "gR", function()
