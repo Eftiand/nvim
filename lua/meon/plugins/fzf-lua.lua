@@ -21,6 +21,7 @@ return {
 				-- Enable fzf's built-in debouncing
 				["--layout"] = "default",
 				["--info"] = "inline",
+				["--ignore-case"] = "", -- Case-insensitive search
 			},
 			-- Performance optimizations
 			files = {

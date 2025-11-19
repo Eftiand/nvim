@@ -9,14 +9,10 @@ return {
 			cancel_deferred_save = { "InsertEnter" },
 		},
 		condition = function(buf)
-			local fn = vim.fn
-			local utils = require("auto-save.utils.data")
-
-			-- Don't save for special buffer types
-			if fn.getbufvar(buf, "&modifiable") == 1 and utils.not_in(fn.getbufvar(buf, "&filetype"), {}) then
-				return true
+			if vim.bo[buf].filetype == "harpoon" then
+				return false
 			end
-			return false
+			return vim.bo[buf].modifiable
 		end,
 		write_all_buffers = false,
 		debounce_delay = 135,
