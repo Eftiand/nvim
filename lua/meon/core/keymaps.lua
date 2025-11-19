@@ -28,14 +28,13 @@ keymap.set("n", "<leader>tt", "<cmd>terminal<CR>", { desc = "Open terminal in ne
 keymap.set("n", "<leader>th", "<cmd>split | terminal<CR>", { desc = "Open terminal in horizontal split" })
 keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal in vertical split" })
 
--- Exit terminal
-keymap.set("t", "<leader>tc", "<C-\\><C-n>", { desc = "Close floating terminal" })
-
 -- Terminal window navigation (works in all terminal buffers)
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "*",
   callback = function()
     local opts = { buffer = 0, silent = true }
+    -- Exit terminal mode with Ctrl-q (keeps Esc for Claude Code, no key lag)
+    vim.keymap.set("t", "<C-q>", [[<C-\><C-n>]], opts)
     vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts)
     vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts)
     vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts)
