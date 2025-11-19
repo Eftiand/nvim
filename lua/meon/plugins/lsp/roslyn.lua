@@ -4,6 +4,13 @@ return {
     ---@module 'roslyn.config'
     ---@type RoslynNvimConfig
     opts = {
-        -- your configuration comes here; leave empty for default settings
+        config = {
+            settings = {
+                ["csharp|background_analysis"] = {
+                    dotnet_analyzer_diagnostics_scope = "fullSolution",
+                    dotnet_compiler_diagnostics_scope = "fullSolution",
+                },
+            },
+        },
     },
 }
