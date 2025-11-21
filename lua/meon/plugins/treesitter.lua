@@ -13,12 +13,24 @@ return {
 		treesitter.setup({ -- enable syntax highlighting
 			highlight = {
 				enable = true,
+				additional_vim_regex_highlighting = false,
 			},
 			-- enable indentation
 			indent = { enable = true },
 			-- enable autotagging (w/ nvim-ts-autotag plugin)
 			autotag = {
 				enable = true,
+				enable_rename = true,
+				enable_close = true,
+				enable_close_on_slash = true,
+				filetypes = {
+					"html",
+					"xml",
+					"javascript",
+					"javascriptreact",
+					"typescript",
+					"typescriptreact",
+				},
 			},
 			-- ensure these language parsers are installed
 			ensure_installed = {

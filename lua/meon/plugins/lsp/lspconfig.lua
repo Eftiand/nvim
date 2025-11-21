@@ -66,7 +66,9 @@ return {
 				end, opts)
 
 				opts.desc = "See available code actions"
-				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+				keymap.set({ "n", "v" }, "<leader>ca", function()
+					require("fzf-lua").lsp_code_actions()
+				end, opts)
 
 				opts.desc = "Smart rename"
 				keymap.set("n", "<leader>rn", function()

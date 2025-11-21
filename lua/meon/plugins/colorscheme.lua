@@ -30,6 +30,17 @@ return {
 				["@keyword.modifier.c_sharp"] = { fg = "$purple" },
 				["@type.builtin"] = { fg = "$purple" },
 				["@constant.builtin"] = { fg = "$purple" },
+				-- Comments
+				["Comment"] = { fg = "#5C6370" },
+				["@comment"] = { fg = "#5C6370" },
+				-- JSX/TSX/HTML highlighting
+				["@tag"] = { fg = "$yellow" }, -- Custom components (PascalCase)
+				["@tag.builtin"] = { fg = "$red" }, -- Built-in HTML tags (lowercase)
+				["@tag.delimiter"] = { fg = "$cyan" },
+				["@tag.attribute"] = { fg = "$dark_yellow" },
+				["@constructor.tsx"] = { fg = "$yellow" },
+				["@tag.tsx"] = { fg = "$yellow" },
+				["@tag.builtin.tsx"] = { fg = "$red" },
 			},
 		})
 		vim.cmd("colorscheme onedark")
