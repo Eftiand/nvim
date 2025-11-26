@@ -14,7 +14,7 @@ return {
 			on_attach = function(client, bufnr)
 				if client.supports_method("textDocument/formatting") then
 					-- Set up a keymap for manual formatting only
-					vim.keymap.set("n", "<leader>f", function()
+					vim.keymap.set("n", "<leader>fd", function()
 						vim.lsp.buf.format({ bufnr = bufnr })
 					end, { buffer = bufnr, desc = "Format current buffer" })
 				end
