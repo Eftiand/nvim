@@ -41,3 +41,61 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts)
   end,
 })
+
+-- Build
+keymap.set("n", "<leader>bp", function()
+  local settings_path = vim.fn.getcwd() .. "/.vscode/settings.json"
+  local solution = nil
+
+  -- Try to read from .vscode/settings.json
+  if vim.fn.filereadable(settings_path) == 1 then
+    local content = table.concat(vim.fn.readfile(settings_path), "\n")
+    -- Strip // comments and /* */ block comments (JSONC)
+    content = content:gsub("//.-\n", "\n"):gsub("/%*.-%*/", "")
+    local ok, json = pcall(vim.json.decode, content)
+    if ok and json and json["dotnet.defaultSolution"] then
+      solution = json["dotnet.defaultSolution"]
+    end
+  end
+
+  -- Fallback: find .sln or .slnx in cwd
+  if not solution then
+    local files = vim.fn.glob("*.sln", false, true)
+    vim.list_extend(files, vim.fn.glob("*.slnx", false, true))
+    if #files > 0 then
+      solution = files[1]
+    end
+  end
+
+  local cmd = solution and ("dotnet build " .. solution) or "dotnet build"
+  local output = {}
+
+  vim.api.nvim_echo({ { "Building...", "WarningMsg" } }, false, {})
+  vim.cmd("redraw")
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then vim.list_extend(output, data) end
+    end,
+    on_stderr = function(_, data)
+      if data then vim.list_extend(output, data) end
+    end,
+    on_exit = function(_, code)
+      vim.schedule(function()
+        -- Parse dotnet build output: path/file.cs(line,col): error CS1234: message
+        vim.fn.setqflist({}, " ", {
+          title = "dotnet build",
+          lines = output,
+          efm = "%f(%l\\,%c): %trror %m,%-G%.%#",
+        })
+        if code == 0 then
+          vim.notify("Build succeeded", vim.log.levels.INFO)
+        else
+          vim.notify("Build failed - :copen for errors", vim.log.levels.ERROR)
+          vim.cmd("copen")
+        end
+      end)
+    end,
+  })
+end, { desc = "Build project" })
