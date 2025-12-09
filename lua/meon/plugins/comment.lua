@@ -16,13 +16,19 @@ return {
 			-- Additional configuration for C# and HTML
 			ft = {
 				cs = {
-					-- C# uses // for single line comments and /* */ for multi-line comments
 					__default = "// %s",
 					__multiline = "/* %s */",
 				},
 				html = {
-					-- HTML uses <!-- --> for comments
 					__default = "<!-- %s -->",
+				},
+				json = {
+					__default = "// %s",
+					__multiline = "/* %s */",
+				},
+				jsonc = {
+					__default = "// %s",
+					__multiline = "/* %s */",
 				},
 			},
 		})
