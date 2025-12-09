@@ -4,7 +4,7 @@ return {
   opts = {
     select = {
       enabled = true,
-      backend = { "fzf_lua", "builtin" },
+      backend = { "builtin", "fzf_lua" },
     },
   },
 }
