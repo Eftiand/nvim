@@ -16,33 +16,72 @@ return {
       },
     })
 
+    local function get_project_root()
+      -- Try to find project root via git
+      local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+      if vim.v.shell_error == 0 and git_root and git_root ~= "" then
+        return git_root
+      end
+      -- Fallback to cwd
+      return vim.fn.getcwd()
+    end
+
     local function parse_launch_json()
-      local launch_path = vim.fn.getcwd() .. "/.vscode/launch.json"
+      local root = get_project_root()
+      local launch_path = root .. "/.vscode/launch.json"
       if vim.fn.filereadable(launch_path) == 0 then
+        vim.notify("launch.json not found at: " .. launch_path, vim.log.levels.WARN)
         return nil
       end
 
       local content = table.concat(vim.fn.readfile(launch_path), "\n")
-      content = content:gsub("//.-\n", "\n")
+      -- Strip single-line comments (// ...) but not inside strings
+      content = content:gsub("(%s)//.-[\r\n]", "%1\n")
+      content = content:gsub("^//.-[\r\n]", "\n")
+      -- Strip block comments
       content = content:gsub("/%*.-%*/", "")
+      -- Handle trailing commas (common in JSONC)
+      content = content:gsub(",%s*}", "}")
+      content = content:gsub(",%s*%]", "]")
 
       local ok, json = pcall(vim.json.decode, content)
-      if ok then
-        return json
+      if not ok then
+        vim.notify("Failed to parse launch.json: " .. tostring(json), vim.log.levels.ERROR)
+        return nil
       end
-      return nil
+      return json
     end
 
     local function get_task_spec(config)
-      local cwd = vim.fn.getcwd()
+      local cwd = get_project_root()
 
-      if config.type == "dotnet" and config.projectPath then
-        local project = config.projectPath:gsub("%${workspaceFolder}", cwd)
+      local function resolve_path(path)
+        if not path then return nil end
+        return path:gsub("%${workspaceFolder}", cwd)
+      end
+
+      -- Handle coreclr/dotnet with program (DLL)
+      if (config.type == "coreclr" or config.type == "dotnet") and config.program then
+        local program = resolve_path(config.program)
+        local task_cwd = resolve_path(config.cwd) or cwd
+        local cmd = { "dotnet", program }
+        for _, arg in ipairs(config.args or {}) do
+          table.insert(cmd, arg)
+        end
+        return {
+          name = config.name,
+          cmd = cmd,
+          cwd = task_cwd,
+        }
+      -- Handle dotnet with projectPath
+      elseif config.type == "dotnet" and config.projectPath then
+        local project = resolve_path(config.projectPath)
         return {
           name = config.name,
           cmd = { "dotnet", "run", "--project", project },
           cwd = cwd,
         }
+      -- Handle runtimeExecutable
       elseif config.runtimeExecutable then
         local args = { config.runtimeExecutable }
         for _, arg in ipairs(config.runtimeArgs or {}) do
@@ -51,7 +90,7 @@ return {
         return {
           name = config.name,
           cmd = args,
-          cwd = config.cwd and config.cwd:gsub("%${workspaceFolder}", cwd) or cwd,
+          cwd = resolve_path(config.cwd) or cwd,
         }
       end
       return nil
