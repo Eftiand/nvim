@@ -90,7 +90,7 @@ keymap.set("n", "<leader>bp", function()
           efm = "%f(%l\\,%c): %trror %m,%-G%.%#",
         })
         if code == 0 then
-          vim.notify("Build succeeded", vim.log.levels.INFO)
+          vim.api.nvim_echo({ { "Build succeeded", "DiagnosticOk" } }, false, {})
         else
           vim.notify("Build failed - :copen for errors", vim.log.levels.ERROR)
           vim.cmd("copen")
