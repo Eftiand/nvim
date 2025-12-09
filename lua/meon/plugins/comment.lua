@@ -15,20 +15,8 @@ return {
 
 			-- Additional configuration for C# and HTML
 			ft = {
-				cs = {
-					__default = "// %s",
-					__multiline = "/* %s */",
-				},
 				html = {
 					__default = "<!-- %s -->",
-				},
-				json = {
-					__default = "// %s",
-					__multiline = "/* %s */",
-				},
-				jsonc = {
-					__default = "// %s",
-					__multiline = "/* %s */",
 				},
 			},
 		})

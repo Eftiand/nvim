@@ -63,3 +63,11 @@ vim.api.nvim_create_user_command('Ofinder',
     end,
     {}
 )
+
+-- Set commentstring for JSON files (enables gcc commenting)
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "json", "jsonc" },
+	callback = function()
+		vim.bo.commentstring = "// %s"
+	end,
+})
