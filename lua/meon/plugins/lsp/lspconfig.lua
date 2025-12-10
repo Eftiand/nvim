@@ -109,6 +109,7 @@ return {
 
 		-- Diagnostic symbols in the sign column (gutter)
 		vim.diagnostic.config({
+			virtual_text = true,
 			signs = {
 				text = {
 					[vim.diagnostic.severity.ERROR] = " ",
@@ -117,7 +118,14 @@ return {
 					[vim.diagnostic.severity.INFO] = " ",
 				},
 			},
+			underline = true,
 		})
+
+		-- Make diagnostic colors more vivid (onedark palette)
+		vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { fg = "#e06c75", bold = true })
+		vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn", { fg = "#e5c07b", bold = true })
+		vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { fg = "#61afef", bold = true })
+		vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { fg = "#98c379", bold = true })
 
 		-- Get list of installed servers from Mason
 		local installed_servers = mason_lspconfig.get_installed_servers()
