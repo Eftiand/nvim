@@ -17,7 +17,7 @@ return {
         type = "coreclr",
         name = "Launch",
         request = "launch",
-        stopAtEntry = true,
+        stopAtEntry = false,
         program = function()
           return require("dap-dll-autopicker").build_dll_path()
         end,
@@ -27,7 +27,13 @@ return {
       },
     }
 
-    vim.keymap.set("n", "<F5>", dap.continue)
+    vim.keymap.set("n", "<F5>", function()
+      if dap.session() then
+        dap.continue()
+      else
+        dap.run(dap.configurations.cs[1])
+      end
+    end)
     vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
     vim.keymap.set("n", "<F10>", dap.step_over)
     vim.keymap.set("n", "<F11>", dap.step_into)
