@@ -43,8 +43,7 @@ return {
 				"html", -- HTML
 				"jsonls", -- JSON
 				"prettier", -- prettier formatter
-				"stylua",
-				"netcoredbg",
+				"stylua"
 			},
 		})
 	end,
