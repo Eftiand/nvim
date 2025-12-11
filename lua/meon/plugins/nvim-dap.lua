@@ -12,8 +12,16 @@ return {
       args = { "--interpreter=vscode" },
     }
 
-    -- Load configurations from .vscode/launch.json
-    require("dap.ext.vscode").load_launchjs()
+    -- Load configurations from .vscode/launch.json (with JSON5 support)
+    local vscode = require("dap.ext.vscode")
+    vscode.json_decode = function(content)
+      content = content:gsub("//[^\n]*", "") -- remove // comments
+      while content:find(",(%s*[%]%}])") do
+        content = content:gsub(",(%s*[%]%}])", "%1") -- remove trailing commas
+      end
+      return vim.json.decode(content)
+    end
+    vscode.load_launchjs()
 
     vim.keymap.set("n", "<F5>", dap.continue)
     vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
