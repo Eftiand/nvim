@@ -72,9 +72,18 @@ keymap.set("n", "<leader>bp", function()
 
   local cmd = solution and ("dotnet build " .. solution) or "dotnet build"
   local output = {}
+  local start_time = vim.uv.hrtime()
+  local timer = vim.uv.new_timer()
 
-  vim.api.nvim_echo({ { "Building...", "WarningMsg" } }, false, {})
+  vim.api.nvim_echo({ { "Building... 0.0s", "WarningMsg" } }, false, {})
   vim.cmd("redraw")
+
+  timer:start(100, 100, vim.schedule_wrap(function()
+    local elapsed = (vim.uv.hrtime() - start_time) / 1e9
+    vim.api.nvim_echo({ { string.format("Building... %.1fs", elapsed), "WarningMsg" } }, false, {})
+    vim.cmd("redraw")
+  end))
+
   vim.fn.jobstart(cmd, {
     stdout_buffered = true,
     stderr_buffered = true,
@@ -85,6 +94,9 @@ keymap.set("n", "<leader>bp", function()
       if data then vim.list_extend(output, data) end
     end,
     on_exit = function(_, code)
+      timer:stop()
+      timer:close()
+      local elapsed = (vim.uv.hrtime() - start_time) / 1e9
       vim.schedule(function()
         -- Parse dotnet build output: path/file.cs(line,col): error CS1234: message
         vim.fn.setqflist({}, " ", {
@@ -93,9 +105,9 @@ keymap.set("n", "<leader>bp", function()
           efm = "%f(%l\\,%c): %trror %m,%-G%.%#",
         })
         if code == 0 then
-          vim.api.nvim_echo({ { "Build succeeded", "DiagnosticOk" } }, false, {})
+          vim.api.nvim_echo({ { string.format("Build succeeded (%.1fs)", elapsed), "DiagnosticOk" } }, false, {})
         else
-          vim.notify("Build failed - :copen for errors", vim.log.levels.ERROR)
+          vim.notify(string.format("Build failed (%.1fs) - :copen for errors", elapsed), vim.log.levels.ERROR)
           vim.cmd("copen")
         end
       end)
