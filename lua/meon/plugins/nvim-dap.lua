@@ -2,6 +2,10 @@ return {
   "mfussenegger/nvim-dap",
   dependencies = {
     "Cliffback/netcoredbg-macOS-arm64.nvim",
+    {
+      "Weissle/persistent-breakpoints.nvim",
+      opts = { load_breakpoints_event = { "BufReadPost" } },
+    },
   },
   config = function()
     local dap = require("dap")
@@ -18,11 +22,15 @@ return {
     vscode.load_launchjs()
 
     vim.keymap.set("n", "<F5>", dap.continue)
-    vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
-    vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
+    local pb = require("persistent-breakpoints.api")
+    vim.keymap.set("n", "<F9>", pb.toggle_breakpoint)
+    vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
     vim.keymap.set("n", "<F10>", dap.step_over)
     vim.keymap.set("n", "<F11>", dap.step_into)
     vim.keymap.set("n", "<F8>", dap.step_out)
     vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open DAP REPL" })
+    vim.keymap.set("n", "<S-F5>", function()
+      require("dap.ui.widgets").centered_float(require("dap.ui.widgets").sessions)
+    end, { desc = "Show debug sessions" })
   end,
 }
