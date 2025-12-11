@@ -30,6 +30,7 @@ return {
 				git_icons = false, -- Disable git icons for speed
 				file_icons = true,
 				color_icons = true,
+				fzf_opts = { ["--exact"] = "" }, -- Exact substring matching instead of fuzzy
 			},
 			grep = {
 				prompt = "Grep❯ ",
