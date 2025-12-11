@@ -25,5 +25,6 @@ return {
     map("n", "<leader>ts", "<Cmd>lua require('neotest').summary.toggle()<CR>", { desc = "toggle test summary" })
     map("n", "<leader>to", "<Cmd>lua require('neotest').output.open({ enter = true })<CR>", { desc = "open test output" })
     map("n", "<leader>tO", "<Cmd>lua require('neotest').output_panel.toggle()<CR>", { desc = "toggle output panel" })
+    map("n", "<leader>td", "<Cmd>lua require('neotest').run.run({strategy = 'dap'})<CR>", { desc = "debug nearest test" })
   end,
 }
