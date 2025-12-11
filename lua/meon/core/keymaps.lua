@@ -28,17 +28,20 @@ keymap.set("n", "<leader>tt", "<cmd>terminal<CR>", { desc = "Open terminal in ne
 keymap.set("n", "<leader>th", "<cmd>split | terminal<CR>", { desc = "Open terminal in horizontal split" })
 keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal in vertical split" })
 
--- Terminal window navigation (works in all terminal buffers)
+-- Terminal window navigation (works in all terminal buffers except fzf-lua)
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "*",
   callback = function()
-    local opts = { buffer = 0, silent = true }
-    -- Exit terminal mode with Ctrl-q (keeps Esc for Claude Code, no key lag)
-    vim.keymap.set("t", "<C-q>", [[<C-\><C-n>]], opts)
-    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts)
-    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts)
-    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts)
-    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts)
+    vim.defer_fn(function()
+      if vim.bo.filetype == "fzf" then return end
+
+      local opts = { buffer = 0, silent = true }
+      vim.keymap.set("t", "<C-q>", [[<C-\><C-n>]], opts)
+      vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts)
+      vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts)
+      vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts)
+      vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts)
+    end, 10)
   end,
 })
 
