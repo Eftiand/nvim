@@ -38,6 +38,6 @@ return {
       end,
       desc = "Find global marks",
     },
-    { "<leader>dm", "<cmd>delmarks A-Z0-9 | delmarks \"'[] | delmarks!<cr>", desc = "Delete all marks" },
+    { "<leader>dm", "<cmd>delmarks A-Z<cr>", desc = "Delete all global marks" },
   },
 }
