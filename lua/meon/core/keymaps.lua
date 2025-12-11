@@ -73,14 +73,16 @@ keymap.set("n", "<leader>bp", function()
   local cmd = solution and ("dotnet build " .. solution) or "dotnet build"
   local output = {}
   local start_time = vim.uv.hrtime()
+  local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+  local spinner_idx = 1
   local timer = vim.uv.new_timer()
 
-  vim.api.nvim_echo({ { "Building... 0.0s", "WarningMsg" } }, false, {})
+  vim.api.nvim_echo({ { spinner[1] .. " Building...", "WarningMsg" } }, false, {})
   vim.cmd("redraw")
 
-  timer:start(100, 100, vim.schedule_wrap(function()
-    local elapsed = (vim.uv.hrtime() - start_time) / 1e9
-    vim.api.nvim_echo({ { string.format("Building... %.1fs", elapsed), "WarningMsg" } }, false, {})
+  timer:start(80, 80, vim.schedule_wrap(function()
+    spinner_idx = spinner_idx % #spinner + 1
+    vim.api.nvim_echo({ { spinner[spinner_idx] .. " Building...", "WarningMsg" } }, false, {})
     vim.cmd("redraw")
   end))
 
