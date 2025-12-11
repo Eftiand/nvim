@@ -12,31 +12,14 @@ return {
       args = { "--interpreter=vscode" },
     }
 
-    dap.configurations.cs = {
-      {
-        type = "coreclr",
-        name = "Launch",
-        request = "launch",
-        stopAtEntry = false,
-        program = function()
-          return require("dap-dll-autopicker").build_dll_path()
-        end,
-        cwd = function()
-          return vim.fn.getcwd()
-        end,
-      },
-    }
+    -- Load configurations from .vscode/launch.json
+    require("dap.ext.vscode").load_launchjs()
 
-    vim.keymap.set("n", "<F5>", function()
-      if dap.session() then
-        dap.continue()
-      else
-        dap.run(dap.configurations.cs[1])
-      end
-    end)
+    vim.keymap.set("n", "<F5>", dap.continue)
     vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
     vim.keymap.set("n", "<F10>", dap.step_over)
     vim.keymap.set("n", "<F11>", dap.step_into)
     vim.keymap.set("n", "<F8>", dap.step_out)
+    vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open DAP REPL" })
   end,
 }
