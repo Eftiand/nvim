@@ -25,6 +25,7 @@ return {
     local pb = require("persistent-breakpoints.api")
     vim.keymap.set("n", "<F9>", pb.toggle_breakpoint)
     vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
+    vim.keymap.set("n", "<leader>fb", function() require("dap").list_breakpoints() require("fzf-lua").quickfix() end, { desc = "Find breakpoints" })
     vim.keymap.set("n", "<F10>", dap.step_over)
     vim.keymap.set("n", "<F11>", dap.step_into)
     vim.keymap.set("n", "<F8>", dap.step_out)
