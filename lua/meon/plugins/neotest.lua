@@ -12,7 +12,7 @@ return {
       adapters = {
         require("neotest-dotnet")({
           dap = {
-            adapter_name = "coreclr",
+            adapter_name = "netcoredbg",
           },
         }),
       },
