@@ -29,7 +29,10 @@ return {
       },
       layouts = {
         {
-          elements = { { id = "scopes", size = 1.0 } },
+          elements = {
+            { id = "scopes", size = 0.6666 },
+            { id = "watches", size = 0.3334 },
+          },
           size = 15,
           position = "bottom",
         },
