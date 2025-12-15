@@ -47,30 +47,39 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
 -- Build
 keymap.set("n", "<leader>bp", function()
-  local settings_path = vim.fn.getcwd() .. "/.vscode/settings.json"
-  local solution = nil
+  local tasks_path = vim.fn.getcwd() .. "/.vscode/tasks.json"
+  local cmd = nil
 
-  -- Try to read from .vscode/settings.json
-  if vim.fn.filereadable(settings_path) == 1 then
-    local content = table.concat(vim.fn.readfile(settings_path), "\n")
-    -- Strip // comments and /* */ block comments (JSONC)
+  -- Try to read default build task from .vscode/tasks.json
+  if vim.fn.filereadable(tasks_path) == 1 then
+    local content = table.concat(vim.fn.readfile(tasks_path), "\n")
     content = content:gsub("//.-\n", "\n"):gsub("/%*.-%*/", "")
     local ok, json = pcall(vim.json.decode, content)
-    if ok and json and json["dotnet.defaultSolution"] then
-      solution = json["dotnet.defaultSolution"]
+    if ok and json and json.tasks then
+      for _, task in ipairs(json.tasks) do
+        local group = task.group
+        if type(group) == "table" and group.kind == "build" and group.isDefault then
+          local command = task.command or ""
+          local args = task.args or {}
+          -- Replace ${workspaceFolder} with cwd
+          local cwd = vim.fn.getcwd()
+          for i, arg in ipairs(args) do
+            args[i] = arg:gsub("%${workspaceFolder}", cwd)
+          end
+          cmd = command .. " " .. table.concat(args, " ")
+          break
+        end
+      end
     end
   end
 
   -- Fallback: find .sln or .slnx in cwd
-  if not solution then
+  if not cmd then
     local files = vim.fn.glob("*.sln", false, true)
     vim.list_extend(files, vim.fn.glob("*.slnx", false, true))
-    if #files > 0 then
-      solution = files[1]
-    end
+    cmd = #files > 0 and ("dotnet build " .. files[1]) or "dotnet build"
   end
 
-  local cmd = solution and ("dotnet build " .. solution) or "dotnet build"
   local output = {}
   local start_time = vim.uv.hrtime()
   local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
