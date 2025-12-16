@@ -9,6 +9,9 @@ return {
   },
   config = function()
     require("neotest").setup({
+      running = {
+        concurrent = false,
+      },
       adapters = {
         require("neotest-dotnet")({
           dap = {
