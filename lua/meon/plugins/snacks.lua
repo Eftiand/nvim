@@ -7,7 +7,7 @@ return {
 		bigfile = { enabled = true },
 		dashboard = { enabled = true },
 		indent = { enabled = true },
-		input = { enabled = true },
+		input = { enabled = false }, -- Using fzf-lua for vim.ui.select
 		notifier = {
 			enabled = true,
 			timeout = 3000,

@@ -3,6 +3,7 @@ return {
 	dependencies = {
 		"nvim-tree/nvim-web-devicons",
 	},
+	lazy = false,
 	config = function()
 		local fzf = require("fzf-lua")
 
@@ -46,6 +47,9 @@ return {
 				file_icons = true,
 			},
 		})
+
+		-- Register as vim.ui.select handler
+		fzf.register_ui_select()
 
 		-- Set keymaps
 		local keymap = vim.keymap

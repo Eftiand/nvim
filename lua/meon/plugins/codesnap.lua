@@ -10,6 +10,8 @@ return {
       snapshot_config = {
         theme = "candy",
         background = "#00000000",
+        padding_x = 20,
+        padding_y = 20,
         watermark = {
           content = "",
         },
