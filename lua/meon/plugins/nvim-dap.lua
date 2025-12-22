@@ -43,8 +43,6 @@ return {
       dap.list_breakpoints()
       require("fzf-lua").quickfix()
     end, { desc = "Find breakpoints" })
-    vim.keymap.set("n", "<S-F5>", function()
-      require("dap.ui.widgets").centered_float(require("dap.ui.widgets").sessions)
-    end, { desc = "Show debug sessions" })
+    vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Terminate debug session" })
   end,
 }
