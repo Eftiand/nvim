@@ -9,6 +9,9 @@ return {
   },
   config = function()
     require("neotest").setup({
+      icons = {
+        running_animated = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+      },
       running = {
         concurrent = false,
       },
@@ -16,6 +19,10 @@ return {
         require("neotest-dotnet")({
           dap = {
             adapter_name = "netcoredbg",
+          },
+          discovery_root = "project",
+          dotnet_additional_args = {
+            "--no-build",
           },
         }),
       },
