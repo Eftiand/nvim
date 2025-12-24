@@ -1,14 +1,10 @@
 return {
   "stevearc/overseer.nvim",
-  dependencies = {
-    "mfussenegger/nvim-dap",
-  },
   config = function()
     local overseer = require("overseer")
-    local vscode = require("dap.ext.vscode")
+    local json_decode = require("meon.util.json5").decode
 
     overseer.setup({
-      dap = true,
       strategy = "terminal",
       templates = { "builtin" },
       task_list = {
@@ -32,7 +28,7 @@ return {
         return nil
       end
       local content = table.concat(vim.fn.readfile(launch_path), "\n")
-      return vscode.json_decode(content)
+      return json_decode(content)
     end
 
     local function get_task_spec(config)
@@ -40,43 +36,72 @@ return {
 
       local function resolve_path(path)
         if not path then return nil end
-        return path:gsub("%${workspaceFolder}", cwd)
+        return path:gsub("%${workspaceFolder}", cwd):gsub("%${file}", vim.fn.expand("%:p"))
       end
 
-      if (config.type == "coreclr" or config.type == "dotnet") and config.program then
-        local program = resolve_path(config.program)
-        local task_cwd = resolve_path(config.cwd) or cwd
-        local cmd = { "dotnet", program }
-        for _, arg in ipairs(config.args or {}) do
+      local function get_runtime(program)
+        if not program then return nil end
+        local ext = program:match("%.([^.]+)$")
+        local runtimes = {
+          py = "python", js = "node", ts = "npx ts-node", rb = "ruby",
+          pl = "perl", php = "php", lua = "lua", sh = "bash",
+          dll = "dotnet", exe = nil,
+        }
+        return runtimes[ext]
+      end
+
+      local cmd = {}
+
+      -- 1. Explicit runtime executable
+      if config.runtimeExecutable then
+        table.insert(cmd, resolve_path(config.runtimeExecutable) or config.runtimeExecutable)
+        for _, arg in ipairs(config.runtimeArgs or {}) do
           table.insert(cmd, arg)
         end
-        return {
-          name = config.name,
-          cmd = cmd,
-          cwd = task_cwd,
-          env = config.env,
-        }
-      elseif config.type == "dotnet" and config.projectPath then
-        local project = resolve_path(config.projectPath)
-        return {
-          name = config.name,
-          cmd = { "dotnet", "run", "--project", project },
-          cwd = cwd,
-          env = config.env,
-        }
-      elseif config.runtimeExecutable then
-        local args = { config.runtimeExecutable }
-        for _, arg in ipairs(config.runtimeArgs or {}) do
-          table.insert(args, arg)
+
+      -- 2. Cargo (Rust) - has nested build config
+      elseif config.cargo then
+        cmd = { "cargo", "run" }
+        for _, arg in ipairs(config.cargo.args or {}) do
+          if arg ~= "build" and arg ~= "test" then
+            table.insert(cmd, arg)
+          end
         end
-        return {
-          name = config.name,
-          cmd = args,
-          cwd = resolve_path(config.cwd) or cwd,
-          env = config.env,
-        }
+
+      -- 3. Module-based (python -m, etc)
+      elseif config.module then
+        table.insert(cmd, resolve_path(config.python) or "python")
+        table.insert(cmd, "-m")
+        table.insert(cmd, config.module)
+
+      -- 4. Program with auto-detected or explicit runtime
+      elseif config.program then
+        local program = resolve_path(config.program) or config.program
+        local runtime = resolve_path(config.python) or get_runtime(program)
+        if runtime then
+          table.insert(cmd, runtime)
+        end
+        table.insert(cmd, program)
+
+      -- 5. Project path (.NET style)
+      elseif config.projectPath then
+        cmd = { "dotnet", "run", "--project", resolve_path(config.projectPath) or config.projectPath }
+
+      else
+        return nil
       end
-      return nil
+
+      -- Add args
+      for _, arg in ipairs(config.args or {}) do
+        table.insert(cmd, arg)
+      end
+
+      return {
+        name = config.name,
+        cmd = cmd,
+        cwd = resolve_path(config.cwd) or cwd,
+        env = config.env,
+      }
     end
 
     local function run_task(name)

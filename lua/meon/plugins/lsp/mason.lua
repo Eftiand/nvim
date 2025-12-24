@@ -35,6 +35,7 @@ return {
 				"ts_ls", -- TypeScript/JavaScript
 				"cssls", -- CSS
 				"html", -- HTML
+				"pyright", -- Python
 			},
 		})
 		mason_tool_installer.setup({
@@ -43,7 +44,9 @@ return {
 				"html", -- HTML
 				"jsonls", -- JSON
 				"prettier", -- prettier formatter
-				"stylua"
+				"stylua",
+				"ruff", -- Python linter + formatter
+				"debugpy", -- Python debugger
 			},
 		})
 	end,
