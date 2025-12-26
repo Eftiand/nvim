@@ -43,9 +43,9 @@ return {
         if not program then return nil end
         local ext = program:match("%.([^.]+)$")
         local runtimes = {
-          py = "python", js = "node", ts = "npx ts-node", rb = "ruby",
-          pl = "perl", php = "php", lua = "lua", sh = "bash",
-          dll = "dotnet", exe = nil,
+          py = { "python" }, js = { "node" }, ts = { "npx", "ts-node" }, rb = { "ruby" },
+          pl = { "perl" }, php = { "php" }, lua = { "lua" }, sh = { "bash" },
+          dll = { "dotnet" }, go = { "go", "run" },
         }
         return runtimes[ext]
       end
@@ -77,9 +77,15 @@ return {
       -- 4. Program with auto-detected or explicit runtime
       elseif config.program then
         local program = resolve_path(config.program) or config.program
-        local runtime = resolve_path(config.python) or get_runtime(program)
-        if runtime then
-          table.insert(cmd, runtime)
+        if config.python then
+          table.insert(cmd, resolve_path(config.python))
+        else
+          local runtime = get_runtime(program)
+          if runtime then
+            for _, part in ipairs(runtime) do
+              table.insert(cmd, part)
+            end
+          end
         end
         table.insert(cmd, program)
 
