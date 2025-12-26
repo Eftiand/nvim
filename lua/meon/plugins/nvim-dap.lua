@@ -37,25 +37,55 @@ return {
     dap.adapters.python = python_adapter
     dap.adapters.debugpy = python_adapter
 
+    -- Go adapter (delve)
+    dap.adapters.go = {
+      type = "server",
+      port = "${port}",
+      executable = {
+        command = vim.fn.stdpath("data") .. "/mason/packages/delve/dlv",
+        args = { "dap", "-l", "127.0.0.1:${port}" },
+      },
+    }
+    dap.adapters.delve = dap.adapters.go
+
     -- Load configurations from .vscode/launch.json
     local vscode = require("dap.ext.vscode")
     vscode.json_decode = require("meon.util.json5").decode
 
+    -- Type mappings for launch.json
+    local type_to_filetypes = {
+      python = { "python" },
+      debugpy = { "python" },
+      go = { "go" },
+      delve = { "go" },
+    }
+
     -- Helper to reload launch.json
     local function load_launchjs()
-      vscode.load_launchjs(nil, { python = { "python" }, debugpy = { "python" } })
+      -- Clear ALL existing configurations from launch.json
+      for _, filetypes in pairs(type_to_filetypes) do
+        for _, ft in ipairs(filetypes) do
+          dap.configurations[ft] = {}
+        end
+      end
+      vscode.load_launchjs(nil, type_to_filetypes)
     end
 
-    -- Load on startup if exists
-    load_launchjs()
+    -- Load on first use of F5, not on startup
+    local loaded = false
+    local original_continue = dap.continue
+    dap.continue = function(...)
+      if not loaded then
+        load_launchjs()
+        loaded = true
+      end
+      return original_continue(...)
+    end
 
-    -- Auto-reload launch.json on directory change
+    -- Reload on directory change
     vim.api.nvim_create_autocmd("DirChanged", {
       callback = function()
-        -- Clear existing configurations for filetypes that use launch.json
-        dap.configurations.python = nil
-        dap.configurations.debugpy = nil
-        load_launchjs()
+        loaded = false
       end,
     })
 
@@ -80,9 +110,9 @@ return {
     end, { desc = "Find breakpoints" })
     vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Terminate debug session" })
     vim.keymap.set("n", "<leader>dl", function()
-      dap.configurations.python = nil
-      dap.configurations.debugpy = nil
+      loaded = false
       load_launchjs()
+      loaded = true
       vim.notify("Reloaded launch.json", vim.log.levels.INFO)
     end, { desc = "Reload launch.json" })
   end,

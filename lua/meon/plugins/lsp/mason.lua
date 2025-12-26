@@ -36,6 +36,7 @@ return {
 				"cssls", -- CSS
 				"html", -- HTML
 				"pyright", -- Python
+				"gopls", -- Go
 			},
 		})
 		mason_tool_installer.setup({

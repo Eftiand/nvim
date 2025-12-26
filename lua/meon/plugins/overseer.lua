@@ -39,15 +39,26 @@ return {
         return path:gsub("%${workspaceFolder}", cwd):gsub("%${file}", vim.fn.expand("%:p"))
       end
 
-      local function get_runtime(program)
-        if not program then return nil end
-        local ext = program:match("%.([^.]+)$")
-        local runtimes = {
-          py = { "python" }, js = { "node" }, ts = { "npx", "ts-node" }, rb = { "ruby" },
-          pl = { "perl" }, php = { "php" }, lua = { "lua" }, sh = { "bash" },
-          dll = { "dotnet" }, go = { "go", "run" },
+      local function get_runtime(program, config_type)
+        -- Extension-based detection
+        if program then
+          local ext = program:match("%.([^.]+)$")
+          local runtimes = {
+            py = { "python" }, js = { "node" }, ts = { "npx", "ts-node" }, rb = { "ruby" },
+            pl = { "perl" }, php = { "php" }, lua = { "lua" }, sh = { "bash" },
+            dll = { "dotnet" }, go = { "go", "run" },
+          }
+          if ext and runtimes[ext] then
+            return runtimes[ext]
+          end
+        end
+        -- Type-based detection (for directories or unknown extensions)
+        local type_runtimes = {
+          go = { "go", "run" }, delve = { "go", "run" },
+          python = { "python" }, debugpy = { "python" },
+          node = { "node" }, ["pwa-node"] = { "node" },
         }
-        return runtimes[ext]
+        return type_runtimes[config_type]
       end
 
       local cmd = {}
@@ -79,15 +90,19 @@ return {
         local program = resolve_path(config.program) or config.program
         if config.python then
           table.insert(cmd, resolve_path(config.python))
+          table.insert(cmd, program)
         else
-          local runtime = get_runtime(program)
+          local runtime = get_runtime(program, config.type)
           if runtime then
             for _, part in ipairs(runtime) do
               table.insert(cmd, part)
             end
+            table.insert(cmd, program)
+          else
+            -- No runtime detected, try running directly
+            table.insert(cmd, program)
           end
         end
-        table.insert(cmd, program)
 
       -- 5. Project path (.NET style)
       elseif config.projectPath then
