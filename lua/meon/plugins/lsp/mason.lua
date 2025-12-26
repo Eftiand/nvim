@@ -47,6 +47,7 @@ return {
 				"stylua",
 				"ruff", -- Python linter + formatter
 				"debugpy", -- Python debugger
+				"delve", -- Go debugger
 			},
 		})
 	end,

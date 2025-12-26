@@ -51,6 +51,9 @@ return {
 				"yaml",
 				"markdown",
 				"markdown_inline", -- needed for proper markdown support
+				"go",
+				"gomod",
+				"gosum",
 			},
 			incremental_selection = {
 				enable = true,
