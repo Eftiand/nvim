@@ -109,6 +109,13 @@ return {
 			desc = "Lazygit Log (cwd)",
 		},
 		{
+			"<leader>ld",
+			function()
+				Snacks.terminal("lazydocker")
+			end,
+			desc = "Lazydocker",
+		},
+		{
 			"<leader>un",
 			function()
 				Snacks.notifier.hide()
