@@ -40,7 +40,6 @@ return {
       end
 
       local function get_runtime(program, config_type)
-        -- Extension-based detection
         if program then
           local ext = program:match("%.([^.]+)$")
           local runtimes = {
@@ -48,11 +47,8 @@ return {
             pl = { "perl" }, php = { "php" }, lua = { "lua" }, sh = { "bash" },
             dll = { "dotnet" }, go = { "go", "run" },
           }
-          if ext and runtimes[ext] then
-            return runtimes[ext]
-          end
+          if ext and runtimes[ext] then return runtimes[ext] end
         end
-        -- Type-based detection (for directories or unknown extensions)
         local type_runtimes = {
           go = { "go", "run" }, delve = { "go", "run" },
           python = { "python" }, debugpy = { "python" },
@@ -63,29 +59,18 @@ return {
 
       local cmd = {}
 
-      -- 1. Explicit runtime executable
       if config.runtimeExecutable then
         table.insert(cmd, resolve_path(config.runtimeExecutable) or config.runtimeExecutable)
-        for _, arg in ipairs(config.runtimeArgs or {}) do
-          table.insert(cmd, arg)
-        end
-
-      -- 2. Cargo (Rust) - has nested build config
+        for _, arg in ipairs(config.runtimeArgs or {}) do table.insert(cmd, arg) end
       elseif config.cargo then
         cmd = { "cargo", "run" }
         for _, arg in ipairs(config.cargo.args or {}) do
-          if arg ~= "build" and arg ~= "test" then
-            table.insert(cmd, arg)
-          end
+          if arg ~= "build" and arg ~= "test" then table.insert(cmd, arg) end
         end
-
-      -- 3. Module-based (python -m, etc)
       elseif config.module then
         table.insert(cmd, resolve_path(config.python) or "python")
         table.insert(cmd, "-m")
         table.insert(cmd, config.module)
-
-      -- 4. Program with auto-detected or explicit runtime
       elseif config.program then
         local program = resolve_path(config.program) or config.program
         if config.python then
@@ -94,28 +79,19 @@ return {
         else
           local runtime = get_runtime(program, config.type)
           if runtime then
-            for _, part in ipairs(runtime) do
-              table.insert(cmd, part)
-            end
+            for _, part in ipairs(runtime) do table.insert(cmd, part) end
             table.insert(cmd, program)
           else
-            -- No runtime detected, try running directly
             table.insert(cmd, program)
           end
         end
-
-      -- 5. Project path (.NET style)
       elseif config.projectPath then
         cmd = { "dotnet", "run", "--project", resolve_path(config.projectPath) or config.projectPath }
-
       else
         return nil
       end
 
-      -- Add args
-      for _, arg in ipairs(config.args or {}) do
-        table.insert(cmd, arg)
-      end
+      for _, arg in ipairs(config.args or {}) do table.insert(cmd, arg) end
 
       return {
         name = config.name,
@@ -123,6 +99,79 @@ return {
         cwd = resolve_path(config.cwd) or cwd,
         env = config.env,
       }
+    end
+
+    local function has_dap_adapter(config_type)
+      local dap = require("dap")
+      return dap.adapters[config_type] ~= nil
+    end
+
+    local function run_with_overseer(config)
+      local spec = get_task_spec(config)
+      if spec then
+        local task = overseer.new_task(spec)
+        task:start()
+        return task
+      end
+      return nil
+    end
+
+    local function create_dap_task(name)
+      local dap = require("dap")
+      local logfile = "/tmp/dap_overseer_" .. name:gsub("[^%w]", "_") .. "_" .. os.time() .. ".log"
+      vim.fn.writefile({}, logfile)
+
+      local task = overseer.new_task({
+        name = name,
+        cmd = { "tail", "-f", logfile },
+      })
+      task:start()
+
+      local listener_id = "overseer_" .. name:gsub("[^%w]", "_")
+
+      -- Kill DAP session when Overseer task is stopped
+      task:subscribe("on_dispose", function()
+        if dap.session() then
+          dap.terminate()
+        end
+      end)
+
+      -- Pipe DAP console output to log file
+      dap.listeners.after.event_output[listener_id] = function(_, body)
+        if body.output then
+          local f = io.open(logfile, "a")
+          if f then
+            f:write(body.output)
+            f:close()
+          end
+        end
+      end
+
+      -- Cleanup on terminate/exit
+      local function cleanup()
+        dap.listeners.after.event_output[listener_id] = nil
+        dap.listeners.after.event_terminated[listener_id] = nil
+        dap.listeners.after.event_exited[listener_id] = nil
+        task:stop()
+        vim.defer_fn(function() os.remove(logfile) end, 1000)
+      end
+
+      dap.listeners.after.event_terminated[listener_id] = cleanup
+      dap.listeners.after.event_exited[listener_id] = cleanup
+
+      return task
+    end
+
+    local function run_config(config)
+      local dap = require("dap")
+
+      if has_dap_adapter(config.type) then
+        create_dap_task(config.name)
+        dap.run(config)
+        return true
+      else
+        return run_with_overseer(config) ~= nil
+      end
     end
 
     local function run_task(name)
@@ -134,11 +183,8 @@ return {
 
       for _, config in ipairs(json.configurations or {}) do
         if config.name == name then
-          local spec = get_task_spec(config)
-          if spec then
-            overseer.new_task(spec):start()
-            overseer.open()
-          end
+          run_config(config)
+          overseer.open()
           return
         end
       end
@@ -153,12 +199,7 @@ return {
           for _, config_name in ipairs(compound.configurations) do
             local config = configs[config_name]
             if config then
-              local spec = get_task_spec(config)
-              if spec and spec.cmd then
-                overseer.new_task(spec):start()
-              else
-                vim.notify("Skipping unsupported config: " .. config_name, vim.log.levels.WARN)
-              end
+              run_config(config)
             else
               vim.notify("Config not found: " .. config_name, vim.log.levels.WARN)
             end
@@ -186,14 +227,11 @@ return {
 
       for _, config in ipairs(json.configurations or {}) do
         if config.request == "launch" and config.name then
-          local spec = get_task_spec(config)
-          if spec then
-            table.insert(items, config.name)
-          end
+          table.insert(items, config.name)
         end
       end
 
-      vim.ui.select(items, { prompt = "Select task:" }, function(choice)
+      vim.ui.select(items, { prompt = "Debug:" }, function(choice)
         if choice then
           local name = choice:gsub("^%[Compound%] ", "")
           run_task(name)
@@ -227,7 +265,7 @@ return {
 
     local map = vim.keymap.set
 
-    map("n", "<leader>or", select_and_run, { desc = "Run task" })
+    map("n", "<leader>or", select_and_run, { desc = "Debug task" })
     map("n", "<leader>ot", "<Cmd>OverseerToggle<CR>", { desc = "Toggle task list" })
     map("n", "<leader>oa", "<Cmd>OverseerTaskAction<CR>", { desc = "Task action" })
   end,

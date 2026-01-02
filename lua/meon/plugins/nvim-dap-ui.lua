@@ -8,8 +8,7 @@ return {
     local dapui = require("dapui")
     local dap = require("dap")
 
-    -- Auto open/close UI
-    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+    -- Auto close UI (no auto-open - use <leader>du to toggle)
     dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
     dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
 
