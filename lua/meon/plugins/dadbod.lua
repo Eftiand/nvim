@@ -18,16 +18,45 @@ return {
 		{
 			"<leader>sj",
 			function()
-				-- Get the content under cursor or current line
-				local content = vim.fn.expand("<cWORD>")
-				if content == "" then
-					content = vim.api.nvim_get_current_line()
-				end
+				-- Get the full line content
+				local content = vim.api.nvim_get_current_line()
 
 				-- Try to find JSON object/array in the content
 				local json_start = content:find("[{%[]")
 				if json_start then
 					content = content:sub(json_start)
+					-- Try to find matching end bracket
+					local depth = 0
+					local in_string = false
+					local escape = false
+					local end_pos = nil
+					local start_char = content:sub(1, 1)
+					local end_char = start_char == "{" and "}" or "]"
+
+					for i = 1, #content do
+						local c = content:sub(i, i)
+						if escape then
+							escape = false
+						elseif c == "\\" then
+							escape = true
+						elseif c == '"' then
+							in_string = not in_string
+						elseif not in_string then
+							if c == "{" or c == "[" then
+								depth = depth + 1
+							elseif c == "}" or c == "]" then
+								depth = depth - 1
+								if depth == 0 then
+									end_pos = i
+									break
+								end
+							end
+						end
+					end
+
+					if end_pos then
+						content = content:sub(1, end_pos)
+					end
 				end
 
 				-- Open in vertical split
