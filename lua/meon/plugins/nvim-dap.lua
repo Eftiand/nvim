@@ -3,10 +3,6 @@ return {
   lazy = false,
   dependencies = {
     "Cliffback/netcoredbg-macOS-arm64.nvim",
-    {
-      "Weissle/persistent-breakpoints.nvim",
-      opts = { load_breakpoints_event = { "BufReadPost" } },
-    },
   },
   config = function()
     local dap = require("dap")
@@ -90,16 +86,15 @@ return {
     })
 
     -- Keymaps
-    local pb = require("persistent-breakpoints.api")
     vim.keymap.set("n", "<F5>", dap.continue)
     vim.keymap.set("n", "<F8>", dap.step_out)
-    vim.keymap.set("n", "<F9>", pb.toggle_breakpoint)
-    vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
-    vim.keymap.set("n", "<leader>fb", function() require("dap").list_breakpoints() require("fzf-lua").quickfix() end, { desc = "Find breakpoints" })
+    vim.keymap.set("n", "<F9>", dap.toggle_breakpoint)
     vim.keymap.set("n", "<F10>", dap.step_over)
     vim.keymap.set("n", "<F11>", dap.step_into)
-    vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
+    vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
+    vim.keymap.set("n", "<leader>dC", dap.clear_breakpoints, { desc = "Clear all breakpoints" })
     vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open DAP REPL" })
+    vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Terminate debug session" })
     vim.keymap.set("n", "<leader>de", function()
       local expr = vim.fn.input("Evaluate: ")
       if expr ~= "" then require("dapui").eval(expr, { enter = true }) end
@@ -108,7 +103,6 @@ return {
       dap.list_breakpoints()
       require("fzf-lua").quickfix()
     end, { desc = "Find breakpoints" })
-    vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Terminate debug session" })
     vim.keymap.set("n", "<leader>dl", function()
       loaded = false
       load_launchjs()
