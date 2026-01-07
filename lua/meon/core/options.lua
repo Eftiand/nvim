@@ -2,6 +2,9 @@ vim.cmd("let g:netrw_liststyle = 3")
 
 local opt = vim.opt
 
+-- Store more recent files in shada
+opt.shada = "!,'1000,<50,s10,h"
+
 opt.relativenumber = true
 opt.number = true
 
