@@ -42,7 +42,8 @@ return {
 			},
 			oldfiles = {
 				prompt = "Recent❯ ",
-				cwd_only = false,
+				cwd_only = true,
+				include_current_session = true,
 				git_icons = false,
 				file_icons = true,
 			},
