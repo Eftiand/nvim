@@ -82,18 +82,13 @@ keymap.set("n", "<leader>bp", function()
 
   local output = {}
   local start_time = vim.uv.hrtime()
-  local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
-  local spinner_idx = 1
-  local timer = vim.uv.new_timer()
 
-  vim.api.nvim_echo({ { spinner[1] .. " Building...", "WarningMsg" } }, false, {})
-  vim.cmd("redraw")
-
-  timer:start(80, 80, vim.schedule_wrap(function()
-    spinner_idx = spinner_idx % #spinner + 1
-    vim.api.nvim_echo({ { spinner[spinner_idx] .. " Building...", "WarningMsg" } }, false, {})
-    vim.cmd("redraw")
-  end))
+  -- Update lualine build status
+  _G.build_status = _G.build_status or {}
+  _G.build_status.running = true
+  _G.build_status.message = ""
+  _G.build_status.level = "info"
+  vim.cmd("redrawstatus")
 
   vim.fn.jobstart(cmd, {
     stdout_buffered = true,
@@ -105,8 +100,6 @@ keymap.set("n", "<leader>bp", function()
       if data then vim.list_extend(output, data) end
     end,
     on_exit = function(_, code)
-      timer:stop()
-      timer:close()
       local elapsed = (vim.uv.hrtime() - start_time) / 1e9
       vim.schedule(function()
         -- Parse dotnet build output: path/file.cs(line,col): error CS1234: message
@@ -115,12 +108,25 @@ keymap.set("n", "<leader>bp", function()
           lines = output,
           efm = "%f(%l\\,%c): %trror %m,%-G%.%#",
         })
+
+        _G.build_status.running = false
         if code == 0 then
-          vim.api.nvim_echo({ { string.format("Build succeeded (%.1fs)", elapsed), "DiagnosticOk" } }, false, {})
+          _G.build_status.message = string.format("✓ Build succeeded (%.1fs)", elapsed)
+          _G.build_status.level = "ok"
         else
-          vim.notify(string.format("Build failed (%.1fs) - :copen for errors", elapsed), vim.log.levels.ERROR)
+          _G.build_status.message = string.format("✗ Build failed (%.1fs)", elapsed)
+          _G.build_status.level = "error"
           vim.cmd("copen")
         end
+        vim.cmd("redrawstatus")
+
+        -- Clear message after 5 seconds
+        vim.defer_fn(function()
+          if not _G.build_status.running then
+            _G.build_status.message = ""
+            vim.cmd("redrawstatus")
+          end
+        end, 5000)
       end)
     end,
   })
