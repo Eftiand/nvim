@@ -1,7 +1,9 @@
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
-	options = {
-		theme = "gruvbox",
+	opts = {
+		options = {
+			theme = "ayu_dark",
+		},
 	},
 }

@@ -20,6 +20,7 @@ opt.ignorecase = true
 opt.smartcase = true
 
 opt.cursorline = true
+opt.cmdheight = 0
 
 opt.termguicolors = true
 opt.background = "dark"
