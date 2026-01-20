@@ -47,6 +47,12 @@ return {
 					require("fzf-lua").lsp_references()
 				end, opts)
 
+				-- Override default grr to use fzf-lua instead of quickfix
+				opts.desc = "Show LSP references (fzf)"
+				keymap.set("n", "grr", function()
+					require("fzf-lua").lsp_references()
+				end, opts)
+
 				opts.desc = "Go to declaration"
 				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 
