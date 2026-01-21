@@ -41,6 +41,13 @@ return {
 				["@constructor.tsx"] = { fg = "$yellow" },
 				["@tag.tsx"] = { fg = "$yellow" },
 				["@tag.builtin.tsx"] = { fg = "$red" },
+				-- Python highlighting
+				["@function.call"] = { fg = "$blue" },
+				["@function.method.call"] = { fg = "$blue" },
+				["@attribute"] = { fg = "$red" },
+				["@function.call.python"] = { fg = "$blue" },
+				["@function.method.call.python"] = { fg = "$blue" },
+				["@attribute.python"] = { fg = "$red" },
 			},
 		})
 		vim.cmd("colorscheme onedark")
