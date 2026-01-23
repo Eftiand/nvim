@@ -29,6 +29,28 @@ local function build_color()
 	return {}
 end
 
+-- DAP exception mode component
+local function dap_exception_component()
+	local mode = _G.dap_exception_mode
+	if not mode or mode == "off" then
+		return ""
+	elseif mode == "user-unhandled" then
+		return "Ex:unhandled"
+	else
+		return "Ex:ALL"
+	end
+end
+
+local function dap_exception_color()
+	local mode = _G.dap_exception_mode
+	if mode == "all" then
+		return { fg = "#f92672" } -- red
+	elseif mode == "user-unhandled" then
+		return { fg = "#e6db74" } -- yellow
+	end
+	return {}
+end
+
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -38,6 +60,7 @@ return {
 		},
 		sections = {
 			lualine_x = {
+				{ dap_exception_component, color = dap_exception_color },
 				{ build_component, color = build_color },
 				"fileformat",
 				"filetype",

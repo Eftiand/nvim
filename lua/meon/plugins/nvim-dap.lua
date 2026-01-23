@@ -109,5 +109,24 @@ return {
       loaded = true
       vim.notify("Reloaded launch.json", vim.log.levels.INFO)
     end, { desc = "Reload launch.json" })
+
+    -- Exception breakpoint toggle (global for lualine)
+    _G.dap_exception_mode = "off"
+    dap.set_exception_breakpoints({})
+    vim.keymap.set("n", "<leader>dx", function()
+      if _G.dap_exception_mode == "off" then
+        _G.dap_exception_mode = "user-unhandled"
+        dap.set_exception_breakpoints({ "user-unhandled" })
+        vim.notify("Exceptions: user-unhandled", vim.log.levels.INFO)
+      elseif _G.dap_exception_mode == "user-unhandled" then
+        _G.dap_exception_mode = "all"
+        dap.set_exception_breakpoints({ "all" })
+        vim.notify("Exceptions: ALL", vim.log.levels.WARN)
+      else
+        _G.dap_exception_mode = "off"
+        dap.set_exception_breakpoints({})
+        vim.notify("Exceptions: OFF", vim.log.levels.INFO)
+      end
+    end, { desc = "Toggle exception breakpoints" })
   end,
 }
