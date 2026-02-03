@@ -1,6 +1,6 @@
 return {
 	{
-		"ggandor/leap.nvim",
+		url = "https://codeberg.org/andyg/leap.nvim",
 		config = function()
 			local leap = require("leap")
 			vim.keymap.set("n", "f", function()
